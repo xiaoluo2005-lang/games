@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hen's Egg Garden</title>
+  <style>
+    :root { --ink:#4e3151; --pink:#ff8eb4; --yellow:#ffd95a; --grass:#7fd36b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; overflow:hidden; background:linear-gradient(#8bdafa 0 62%, #76cf68 62%); font-family:ui-rounded, "Comic Sans MS", system-ui, sans-serif; color:var(--ink); }
+    .game { width:min(100vw,900px); height:min(100vh,760px); min-height:620px; position:relative; overflow:hidden; border:7px solid white; border-radius:30px; box-shadow:0 12px 0 #4b9f55, 0 24px 45px #376d7380; background:linear-gradient(#8bdafa 0 61%, #78cf69 61%); }
+    .cloud { position:absolute; color:white; font-size:74px; filter:drop-shadow(0 3px #70bfe3); opacity:.95; }
+    .cloud.one { top:20px; left:8%; } .cloud.two { top:83px; right:8%; font-size:52px; }
+    header { position:relative; z-index:2; margin:22px auto 0; width:max-content; max-width:90%; text-align:center; background:#fff6cf; border:4px solid white; border-radius:22px; padding:8px 25px 10px; box-shadow:0 4px #e7b858; }
+    h1 { font-size:clamp(1.7rem,5vw,2.35rem); margin:0; letter-spacing:.4px; }
+    #message { margin:5px 0 0; font-weight:700; font-size:1.12rem; }
+    .score { position:absolute; z-index:4; top:165px; right:28px; background:white; border-radius:18px; padding:12px 17px; font-size:1.35rem; font-weight:900; box-shadow:0 4px #c6a34b; }
+    .sun { position:absolute; right:-28px; top:-27px; width:112px; height:112px; border-radius:50%; background:var(--yellow); box-shadow:0 0 0 13px #ffe98b; }
+    .coop { position:absolute; bottom:78px; left:calc(50% - 145px); width:290px; height:205px; background:#f17e70; border:7px solid #b95059; border-radius:12px 12px 5px 5px; box-shadow:inset 0 -15px #de6864; }
+    .roof { position:absolute; left:-21px; top:-83px; width:318px; height:96px; background:#e9576f; clip-path:polygon(50% 0,100% 100%,0 100%); filter:drop-shadow(0 5px #b95059); }
+    .door { position:absolute; bottom:0; left:97px; width:92px; height:125px; border:6px solid #914655; border-bottom:0; border-radius:50px 50px 0 0; background:#70404c; }
+    .nest { position:absolute; z-index:3; bottom:58px; left:50%; transform:translateX(-50%); width:295px; height:102px; background:#e9b14d; border:6px solid #b77437; border-radius:50%; box-shadow:inset 0 -14px #d8953b; }
+    .hen { position:absolute; z-index:5; bottom:72px; left:calc(50% - 86px); width:172px; height:190px; border:0; background:transparent; cursor:pointer; padding:0; filter:drop-shadow(0 7px 1px #6d9d4b80); animation:roam 6s ease-in-out infinite alternate; -webkit-tap-highlight-color:transparent; }
+    .hen img { display:block; width:100%; height:100%; object-fit:contain; animation:chicken-steps .34s ease-in-out infinite alternate; }
+    .hen:hover { filter:drop-shadow(0 9px 3px #447b42aa) brightness(1.04); } .hen:active img { transform:scale(.93); }
+    @keyframes roam { 0%, 100% { transform:translate(0,0); } 50% { transform:translate(var(--run-x), var(--run-y)); } }
+    @keyframes chicken-steps { from { transform:translateY(0) rotate(-1deg); } to { transform:translateY(-8px) rotate(2deg); } }
+    .egg { position:absolute; z-index:6; width:54px; height:68px; border:0; border-radius:52% 48% 50% 50%; background:radial-gradient(circle at 33% 28%,#fff 0 7%,#fff2b7 8% 55%,#f3c656 100%); box-shadow:inset -4px -5px #e6ad3d, 0 5px #ad7938; cursor:pointer; animation:pop .35s ease-out; }
+    .egg:after { content:""; position:absolute; width:7px; height:7px; border-radius:50%; background:#fff; left:10px; top:9px; opacity:.8; }
+    @keyframes pop { from { transform:scale(.1) translateY(-50px); opacity:0; } to { transform:scale(1); opacity:1; } }
+    .little-hen { position:absolute; z-index:6; bottom:69px; border:0; background:transparent; padding:0; font-size:76px; line-height:1; cursor:pointer; filter:drop-shadow(0 5px 1px #6d9d4b80); animation:roam 5s ease-in-out infinite alternate; }
+    .little-hen:hover { transform:scale(1.12) rotate(-4deg); } .little-hen:active { transform:scale(.92); }
+    .flower { position:absolute; bottom:17px; font-size:36px; } .f1{left:6%}.f2{left:25%;font-size:27px}.f3{right:19%}.f4{right:4%;font-size:29px}
+    .hint { position:absolute; z-index:7; bottom:16px; width:100%; text-align:center; color:white; font-size:1.15rem; font-weight:900; text-shadow:0 2px #397f44; }
+    @media (max-height:650px) { .game { height:100vh; min-height:0; border-radius:0; } .coop { transform:scale(.88); transform-origin:bottom center; } .nest { transform:translateX(-50%) scale(.88); transform-origin:bottom center; } .hen { transform:scale(.88); transform-origin:bottom center; } .hint { font-size:1rem; } }
+    .burst { position:absolute; z-index:10; font-size:28px; pointer-events:none; animation:fly .7s forwards; }
+    @keyframes fly { to { transform:translateY(-70px) rotate(35deg); opacity:0; } }
+    .win { position:absolute; z-index:20; inset:0; display:none; place-items:center; background:#4e3151aa; text-align:center; padding:25px; }
+    .win.show { display:grid; } .card { background:#fff6cf; border:6px solid white; border-radius:26px; padding:26px; box-shadow:0 8px #d6a847; }
+    .card div { font-size:4rem; } .card h2 { margin:5px 0; } .card button { border:0; border-radius:18px; background:var(--pink); color:white; font:800 1.05rem inherit; padding:11px 18px; cursor:pointer; box-shadow:0 4px #cc5d8a; }
+  </style>
+</head>
+<body>
+  <main class="game" aria-label="Hen's Egg Garden game">
+    <div class="sun"></div><div class="cloud one">☁</div><div class="cloud two">☁</div>
+    <header><h1>Hen’s Egg Garden</h1><p id="message">Collect 101 eggs before the first egg hatches!</p></header>
+    <div class="score">🥚 Basket: <span id="score">0</span></div>
+    <div class="coop"><div class="roof"></div><div class="door"></div></div><div class="nest"></div>
+    <button class="hen" id="hen" aria-label="Chicken"><img src="chicken-3d.png" alt="A 3D cartoon chicken"></button>
+    <div class="flower f1">🌼</div><div class="flower f2">🌷</div><div class="flower f3">🌻</div><div class="flower f4">🌼</div>
+    <div class="hint">Two eggs per hen each second · an egg hatching ends the game</div>
+    <section class="win show" id="start-screen" aria-live="polite"><div class="card"><div>🐔🥚</div><h2>Ready to play?</h2><p>Collect 101 eggs before the first egg hatches.</p><button id="start">Start game</button></div></section>
+    <section class="win" id="win" aria-live="polite"><div class="card"><div id="result-icon">🏆</div><h2 id="result-title">You win!</h2><p id="result-text"></p><button id="again">Play again</button></div></section>
+  </main>
+  <script>
+    const game = document.querySelector('.game'), hen = document.querySelector('#hen'), scoreEl = document.querySelector('#score'), message = document.querySelector('#message'), win = document.querySelector('#win');
+    let score = 0, henTimers = [], gameOver = false;
+    function layEggs(source) {
+      if (gameOver) return;
+      message.textContent = 'Two eggs are on the ground! Collect them before they hatch.';
+      makeEgg(Math.floor(Math.random() * 180 - 90));
+      makeEgg(Math.floor(Math.random() * 180 - 90));
+    }
+    function makeEgg(offset) {
+      const egg = document.createElement('button'); egg.className = 'egg'; egg.setAttribute('aria-label','Collect egg');
+      egg.style.left = `calc(50% + ${offset + Math.floor(Math.random()*26-13)}px)`; egg.style.bottom = `${65 + Math.floor(Math.random()*28)}px`;
+      egg.onclick = () => collectEgg(egg);
+      game.append(egg);
+      setTimeout(() => { if (egg.isConnected) hatchEgg(egg); }, 10000);
+    }
+    function collectEgg(egg) {
+      if (gameOver || !egg.isConnected) return;
+      burst('+1', egg); egg.remove(); score++; scoreEl.textContent = score;
+      if (score > 100) finish(true);
+      else message.textContent = `${101 - score} more eggs before any egg hatches!`;
+    }
+    function hatchEgg(egg) {
+      if (gameOver || !egg.isConnected) return;
+      finish(false); egg.remove();
+    }
+    function finish(won) {
+      gameOver = true; henTimers.forEach(clearInterval); henTimers = [];
+      document.querySelectorAll('.egg').forEach(e => e.remove());
+      document.querySelector('#result-icon').textContent = won ? '🏆' : '🐣';
+      document.querySelector('#result-title').textContent = won ? 'You win!' : 'Game over!';
+      document.querySelector('#result-text').textContent = won ? `You collected ${score} eggs before any hatched!` : `An egg hatched before you reached 101 eggs. You collected ${score}.`;
+      win.classList.add('show');
+    }
+    function startHen(h) {
+      h.onclick = () => layEggs(h);
+      h.style.setProperty('--run-x', `${Math.floor(Math.random() * 180 - 90)}px`);
+      h.style.setProperty('--run-y', `${Math.floor(Math.random() * 115 - 55)}px`);
+      henTimers.push(setInterval(() => layEggs(h), 1000));
+    }
+    function burst(symbol, near) { const b=document.createElement('span'); b.className='burst'; b.textContent=symbol; const r=near.getBoundingClientRect(), g=document.querySelector('.game').getBoundingClientRect(); b.style.left=(r.left-g.left+8)+'px'; b.style.top=(r.top-g.top)+'px'; document.querySelector('.game').append(b); setTimeout(()=>b.remove(),700); }
+    document.querySelector('#start').onclick = () => { document.querySelector('#start-screen').classList.remove('show'); startHen(hen); layEggs(hen); };
+    document.querySelector('#again').onclick = () => location.reload();
+  </script>
+</body>
+</html>
