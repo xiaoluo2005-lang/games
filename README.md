@@ -12,7 +12,7 @@ A small chicken-and-egg game.
 
 ## Play online
 
-[Play Hen’s Egg Garden](https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY-NAME/)
+[Play Hen’s Egg Garden](https://xiaoluo2005-lang.github.io/games/)
 
 ## Files
 
